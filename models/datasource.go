@@ -35,7 +35,9 @@ func init() {
 	}
 
 	db = conn
-	db.Debug().AutoMigrate(&Person{id:0, name:"pete", age:18},) //Миграция базы данных
+
+	db.SingularTable(true)
+	db.Debug().AutoMigrate(&Person{},&Position{}) //Миграция базы данных
 }
 
 // возвращает дескриптор объекта DB

@@ -3,50 +3,19 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
 	"net/http"
 	"os"
-	"web-db-test/models"
-	u "web-db-test/utils"
+	"web-db-test/controller"
 )
 
 func main() {
 
+	fmt.Println("...starting...");
+
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Header().Set(
-			"Content-Type",
-			"text/html",
-		)
-		io.WriteString(
-			writer,
-			`<doctype html>
-<html>
-    <head>
-        <title>Hello World</title>
-    </head>
-    <body>
-        Hello World!
-    </body>
-</html>`,
-		)
-	})
+	controller.CreateRouting(router)
 
-	router.HandleFunc("/random", func(writer http.ResponseWriter, request *http.Request) {
-		person := models.GetFirstPerson()
-
-		//err := json.NewDecoder(request.Body).Decode(person)
-		//if err != nil {
-		//	u.Respond(writer, u.Message(false, "Error while decoding request body"))
-		//	return
-		//}
-		resp := u.Message(true, "success")
-		resp["data"] = person
-
-		u.Respond(writer, resp)
-
-	})
 
 	//router.Use(app.JwtAuthentication) // добавляем middleware проверки JWT-токена
 
