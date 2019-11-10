@@ -43,7 +43,13 @@ func SumAgeBefore(age int32) PersonAggr {
 
 	var people []Person
 
+	start:=time.Now()
 	err := GetDB().Debug().Table("person").Find(&people).Error
+
+	elapsed:=time.Since(start)
+
+	fmt.Printf("query time %v\n",elapsed)
+
 	if err != nil && err != gorm.ErrRecordNotFound {
 		println("db eror")
 	}
@@ -79,12 +85,36 @@ func putIntoChan(wg *sync.WaitGroup, ch chan PersonAggr, item func(people []Pers
 	ch <- item(p, age)
 }
 
+func ManyPersonQueries() [] PersonAggr {
+	var aggrChannel=make(chan PersonAggr,10)
+
+	var wg sync.WaitGroup
+
+	wg.Add(10)
+
+	for i:=0; i<10;i++ {
+		go func() {
+			defer wg.Done()
+			aggrChannel <- SumAgeBefore(50)
+		}()
+	}
+
+	wg.Wait()
+	close(aggrChannel)
+
+	var aggrArray=make([] PersonAggr,10)
+	for result:= range aggrChannel {
+		aggrArray=append(aggrArray,result )
+	}
+	return aggrArray
+}
+
 func SumAgeBeforeParallel(age int32) PersonAggr {
 	var people []Person
 
 	start := time.Now()
 
-	err := GetDB().Debug().Table("person").Find(&people).Error
+	err := GetDB()/*.Debug()*/.Table("person").Find(&people).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		println("db eror")
 	}
@@ -92,17 +122,21 @@ func SumAgeBeforeParallel(age int32) PersonAggr {
 	fmt.Println("queryTime %s", elapsed)
 
 	peopleSize := len(people)
+	fmt.Println("people size", len(people))
 	batchSize := peopleSize / 10.0
 
-	var aggrs = make([]PersonAggr, 10)
 
-	personChan := make(chan PersonAggr, 10)
+	capacity:=10
+
+	var aggrs = make([]PersonAggr, capacity)
+
+	personChan := make(chan PersonAggr, capacity)
 
 	var wg sync.WaitGroup
-	wg.Add(10)
-	for i := 0; i < 10; i++ {
-		sl := people[i*10 : batchSize+i*10]
-		fmt.Println("i %s batchSize %s", i, batchSize)
+	wg.Add(capacity)
+	for i := 0; i < capacity; i++ {
+		sl := people[i*capacity : batchSize+i*capacity]
+		//fmt.Println("i %s batchSize %s", i, batchSize)
 		go putIntoChan(&wg, personChan, calcAge(), sl, 50, i)
 	}
 	wg.Wait()
@@ -111,7 +145,7 @@ func SumAgeBeforeParallel(age int32) PersonAggr {
 
 	i := 0
 	for resp := range personChan {
-		fmt.Println("aggr finished", i)
+		//fmt.Println("aggr finished", i)
 		aggrs[i] = resp
 		i++
 	}

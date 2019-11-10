@@ -17,7 +17,22 @@ func CreateRouting(router *mux.Router) {
 	getPosition("/position", router)
 	sumAge("/sumAge", router)
 	sumAgeParallel("/parallel/sumAge",router)
+	manyQueries("/manyQueries",router)
+}
 
+func manyQueries(path string, router *mux.Router) {
+	router.HandleFunc(path, func(writer http.ResponseWriter, request *http.Request) {
+		result:=models.ManyPersonQueries()
+
+		send(result, writer)
+	})
+}
+
+func send(data interface{}, writer http.ResponseWriter){
+	resp := u.Message(true, "success")
+	resp["data"] = data
+
+	u.Respond(writer, resp)
 }
 
 func sumAgeParallel(path string, router *mux.Router) {
