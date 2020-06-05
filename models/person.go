@@ -1,11 +1,11 @@
 package models
 
 import (
+	"../utils"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"sync"
 	"time"
-	"web-db-test/utils"
 )
 
 type Person struct {

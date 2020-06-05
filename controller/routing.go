@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"../models"
+	u "../utils"
 	"fmt"
 	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"strconv"
-	"web-db-test/models"
-	u "web-db-test/utils"
 )
 
 func CreateRouting(router *mux.Router) {

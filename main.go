@@ -1,21 +1,20 @@
 package main
 
 import (
+	"./controller"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"os"
-	"web-db-test/controller"
 )
 
 func main() {
 
-	fmt.Println("...starting...");
+	fmt.Println("...starting...")
 
 	router := mux.NewRouter()
 
 	controller.CreateRouting(router)
-
 
 	//router.Use(app.JwtAuthentication) // добавляем middleware проверки JWT-токена
 
